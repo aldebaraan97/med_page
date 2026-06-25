@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# claude instructions
+BOOKING_PROJECT_SPEC.md
+BOOKING_CLAUDE_CODE_PROMPT.md
