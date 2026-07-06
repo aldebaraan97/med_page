@@ -7,10 +7,23 @@ const specialty = "Pediatra";
 const location = "Cuautitlán Izcalli";
 const yearsExperience = "30+";
 const cedula = "1707043";
-const whatsappNumber = "525563232833";
-const whatsappMessage = encodeURIComponent("Hola, me gustaría agendar una cita con el Dr. Lavielle.");
-const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
-const doctoraliaLink = "https://www.doctoralia.com.mx/vicente-joaquin-lavielle-sotomayor-2/pediatra/cuautitlan-izcalli";
+// WhatsApp is no longer a booking door — it's a low-weight questions channel.
+// Two numbers: the doctor and the assistant. Both fire the existing
+// whatsapp_click event (name unchanged) with a contact param to tell them apart.
+const waDoctor = "525521068585";
+const waAssistant = "525563232833";
+const waQuestionMsg = encodeURIComponent("Tengo una duda");
+const waDoctorLink = `https://wa.me/${waDoctor}?text=${waQuestionMsg}`;
+const waAssistantLink = `https://wa.me/${waAssistant}?text=${waQuestionMsg}`;
+
+// Cal.com inline booking embed.
+// TODO: replace with the real public "Consulta pediátrica" event link once the
+// Cal.com account/event type is created (format: "<username>/<event-slug>").
+const calLink = "alde-01/cita-pediatrica";
+// Match the embed to the page accent (Tailwind blue-600) so it reads as native.
+const calBrandColor = "#2EA3D9";
+// Mornings only — must match the Cal.com availability (dashboard).
+const hoursDisplay = "lunes a sábado, 8:00 a 14:30";
 ---
 
 <!DOCTYPE html>
@@ -31,6 +44,27 @@ const doctoraliaLink = "https://www.doctoralia.com.mx/vicente-joaquin-lavielle-s
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={`${doctorName} - Pediatra en ${location} con más de ${yearsExperience} años de experiencia. Llama para agendar una cita.`} />
     <title>{doctorName} - Pediatra en {location}</title>
+
+    <!-- Capture Google Ads attribution keys (gclid/gbraid/wbraid) on load.
+         Stored for the offline-conversion upload (Phase 2) and attached to the
+         Cal.com booking as metadata. Attribution key only — never any PII. -->
+    <script is:inline>
+      (function () {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          ['gclid', 'gbraid', 'wbraid'].forEach(function (k) {
+            var v = params.get(k);
+            if (v) sessionStorage.setItem('lav_' + k, v);
+          });
+        } catch (e) {}
+        window.getAdAttribution = function () {
+          var read = function (k) {
+            try { return sessionStorage.getItem('lav_' + k) || ''; } catch (e) { return ''; }
+          };
+          return { gclid: read('gclid'), gbraid: read('gbraid'), wbraid: read('wbraid') };
+        };
+      })();
+    </script>
   </head>
 
   <body class="bg-slate-50 text-slate-900 antialiased">
@@ -62,25 +96,60 @@ const doctoraliaLink = "https://www.doctoralia.com.mx/vicente-joaquin-lavielle-s
           <span>20+ opiniones verificadas</span>
         </div>
 
-        <div class="text-center mb-8">
-          <p class="text-slate-700 mb-4">
-            Agenda tu cita por WhatsApp:
+        <!-- Primary CTA: Cal.com inline booking widget. Patient picks an open
+             morning slot and it locks instantly (no host confirmation, no
+             verification). On completion Cal.com redirects to /cita-confirmada
+             (configured in the Cal.com dashboard), where the conversion fires. -->
+        <section class="text-center mb-8">
+          <p class="text-slate-900 font-semibold text-lg mb-1">
+            Agenda tu cita en línea
           </p>
-          <a
-            href={whatsappLink}
-            onclick="dataLayer && dataLayer.push({event: 'whatsapp_click'});"
-            target="_blank"
-            rel="noopener"
-            class="inline-flex items-center justify-center gap-3 w-full md:w-auto bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xl font-semibold px-8 py-4 rounded-xl shadow-md transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-            </svg>
-            Enviar WhatsApp
-          </a>
-          <p class="text-sm text-slate-500 mt-3">
+          <p class="text-sm text-slate-500 mb-1">
+            Elige el horario que más te convenga. Confirmación inmediata.
+          </p>
+          <p class="text-sm text-slate-500 mb-4">
             Horario de atención: lunes a sábado, 8:00 a 17:00
           </p>
+          <div
+            id="cal-booking"
+            class="w-full min-h-[600px] rounded-xl border border-slate-200 overflow-hidden bg-white"
+          ></div>
+        </section>
+
+        <!-- WhatsApp demoted to a low-weight questions channel (no longer a
+             booking door). Two numbers — doctor + assistant — rendered as small
+             icons, not buttons. Each pushes the existing whatsapp_click event
+             (name unchanged) with a contact param so taps per number are observable. -->
+        <div class="text-center mb-8">
+          <p class="text-sm text-slate-500 mb-3">¿Dudas? Escríbenos por WhatsApp</p>
+          <div class="flex justify-center gap-6">
+            <a
+              href={waDoctorLink}
+              onclick="dataLayer && dataLayer.push({event: 'whatsapp_click', contact: 'doctor'});"
+              target="_blank"
+              rel="noopener"
+              aria-label="Escríbele al consultorio del Dr. Lavielle por WhatsApp"
+              class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-green-700 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+              </svg>
+              Consultorio
+            </a>
+            <a
+              href={waAssistantLink}
+              onclick="dataLayer && dataLayer.push({event: 'whatsapp_click', contact: 'assistant'});"
+              target="_blank"
+              rel="noopener"
+              aria-label="Escríbele a la asistente por WhatsApp"
+              class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-green-700 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+              </svg>
+              Asistente
+            </a>
+          </div>
         </div>
 
         <div class="text-slate-700 leading-relaxed">
@@ -94,33 +163,68 @@ const doctoraliaLink = "https://www.doctoralia.com.mx/vicente-joaquin-lavielle-s
           </p>
         </div>
 
+        <!-- Doctoralia booking button removed: it was an untracked off-site exit
+             that bypassed the owned booking/conversion flow. Only the verified-
+             reviews social proof is kept (plain text, no booking link). -->
         <div class="text-center mt-8 pt-8 border-t border-slate-200">
-          <p class="text-slate-900 font-semibold mb-1">
-            Reserva en línea y lee opiniones verificadas
+          <p class="text-sm text-slate-500">
+            ⭐ 20+ opiniones verificadas en Doctoralia
           </p>
-          <p class="text-sm text-slate-500 mb-4">
-            Consulta la disponibilidad del Dr. Lavielle y agenda tu cita
-            directamente en Doctoralia.
-          </p>
-          <a
-            href={doctoraliaLink}
-            onclick="dataLayer && dataLayer.push({event: 'doctoralia_click'});"
-            target="_blank"
-            rel="noopener"
-            class="inline-flex items-center justify-center gap-3 w-full md:w-auto bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white text-lg font-semibold px-8 py-4 rounded-xl shadow-md transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-              <path d="m9 16 2 2 4-4"></path>
-            </svg>
-            Agendar en Doctoralia
-          </a>
         </div>
 
       </div>
     </main>
+
+    <!-- Cal.com inline embed loader + init. Threads the captured Google Ads
+         attribution keys into the booking as metadata (config "metadata[key]"
+         syntax) so they ride along for the Phase-2 offline-conversion upload. -->
+    <script is:inline define:vars={{ calLink, calBrandColor }}>
+      (function (C, A, L) {
+        let p = function (a, ar) { a.q.push(ar); };
+        let d = C.document;
+        C.Cal = C.Cal || function () {
+          let cal = C.Cal;
+          let ar = arguments;
+          if (!cal.loaded) {
+            cal.ns = {};
+            cal.q = cal.q || [];
+            d.head.appendChild(d.createElement("script")).src = A;
+            cal.loaded = true;
+          }
+          if (ar[0] === L) {
+            const api = function () { p(api, arguments); };
+            const namespace = ar[1];
+            api.q = api.q || [];
+            if (typeof namespace === "string") {
+              cal.ns[namespace] = cal.ns[namespace] || api;
+              p(cal.ns[namespace], ar);
+              p(cal, ["initNamespace", namespace]);
+            } else {
+              p(cal, ar);
+            }
+            return;
+          }
+          p(cal, ar);
+        };
+      })(window, "https://app.cal.com/embed/embed.js", "init");
+
+      var attribution = (window.getAdAttribution && window.getAdAttribution()) || {};
+      var bookingConfig = { layout: "month_view" };
+      if (attribution.gclid) bookingConfig["metadata[gclid]"] = attribution.gclid;
+      if (attribution.gbraid) bookingConfig["metadata[gbraid]"] = attribution.gbraid;
+      if (attribution.wbraid) bookingConfig["metadata[wbraid]"] = attribution.wbraid;
+
+      Cal("init", { origin: "https://cal.com" });
+      Cal("inline", {
+        elementOrSelector: "#cal-booking",
+        calLink: calLink,
+        config: bookingConfig
+      });
+      Cal("ui", {
+        hideEventTypeDetails: false,
+        layout: "month_view",
+        cssVarsPerTheme: { light: { "cal-brand": calBrandColor } }
+      });
+    </script>
   </body>
 </html>

@@ -26,4 +26,4 @@ pnpm-debug.log*
 # claude instructions
 BOOKING_PROJECT_SPEC.md
 BOOKING_CLAUDE_CODE_PROMPT.md
-CLAUDE.mc
+CLAUDE.md

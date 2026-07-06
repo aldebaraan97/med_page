@@ -1,0 +1,184 @@
+---
+import '../styles/global.css';
+const doctorName = "Dr. Vicente Lavielle";
+const location = "Cuautitlán Izcalli";
+// Used to build the add-to-calendar entries (Google / Outlook / Apple .ics).
+const calendarTitle = `Cita con ${doctorName} (Pediatra)`;
+const calendarLocation = `Hospital San Rafael, ${location}`;
+const calendarDetails = "Consulta pediátrica. Te enviaremos un recordatorio por WhatsApp el día anterior.";
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TB2P8V8P');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="robots" content="noindex" />
+    <title>Cita confirmada - {doctorName}</title>
+  </head>
+
+  <body class="bg-slate-50 text-slate-900 antialiased">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TB2P8V8P"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <main class="min-h-screen flex items-center justify-center px-4 py-12">
+      <div class="max-w-xl w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12">
+
+        <div class="text-center">
+          <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-9 w-9 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+          </div>
+          <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-3">
+            ¡Tu cita está agendada!
+          </h1>
+          <p class="text-lg text-slate-600 mb-6">
+            Te esperamos. Estos son los datos de tu cita:
+          </p>
+        </div>
+
+        <!-- Appointment details, filled client-side from the params Cal.com
+             forwards into the redirect URL (startTime/endTime/attendeeName). -->
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-6 text-center mb-6">
+          <p id="appt-name" class="text-slate-900 font-semibold mb-2 hidden"></p>
+          <p id="appt-date" class="text-xl font-bold text-blue-600 capitalize">
+            Tu cita ha sido registrada.
+          </p>
+          <p id="appt-time" class="text-lg text-slate-700 mt-1 hidden"></p>
+        </div>
+
+        <p class="text-center text-slate-700 mb-6">
+          Te enviaremos un recordatorio por WhatsApp el día anterior para
+          confirmar tu asistencia.
+        </p>
+
+        <!-- Add-to-calendar. Hidden until the booking time is parsed. -->
+        <div id="add-to-calendar" class="hidden">
+          <p class="text-center text-sm font-semibold text-slate-900 mb-3">
+            Agregar a tu calendario
+          </p>
+          <div class="flex flex-wrap justify-center gap-3">
+            <a id="cal-google" href="#" target="_blank" rel="noopener"
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50">
+              Google
+            </a>
+            <a id="cal-outlook" href="#" target="_blank" rel="noopener"
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50">
+              Outlook
+            </a>
+            <a id="cal-apple" href="#" download="cita-lavielle.ics"
+              class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-colors hover:bg-slate-50">
+              Apple / .ics
+            </a>
+          </div>
+        </div>
+
+        <div class="text-center mt-8 pt-8 border-t border-slate-200">
+          <a href="/" class="text-sm font-semibold text-blue-600 hover:text-blue-700">
+            Volver al inicio
+          </a>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Fire the conversion on load (GTM maps booking_confirmed -> the Ads
+         conversion tag; the tag itself lives in GTM, never inline here). Then
+         render the real appointment details + build add-to-calendar links. -->
+    <script is:inline define:vars={{ calendarTitle, calendarLocation, calendarDetails }}>
+      (function () {
+        // 1. Conversion event — fires exactly once on this success-only page.
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'booking_confirmed' });
+
+        // 2. Render real appointment details from the forwarded params.
+        var params = new URLSearchParams(window.location.search);
+        var startRaw = params.get('startTime');
+        var endRaw = params.get('endTime');
+        var attendee = params.get('attendeeName');
+
+        if (attendee) {
+          var nameEl = document.getElementById('appt-name');
+          nameEl.textContent = attendee;
+          nameEl.classList.remove('hidden');
+        }
+
+        var start = startRaw ? new Date(startRaw) : null;
+        if (!start || isNaN(start.getTime())) return;
+        var end = endRaw ? new Date(endRaw) : null;
+        if (!end || isNaN(end.getTime())) {
+          end = new Date(start.getTime() + 30 * 60 * 1000);
+        }
+
+        var TZ = 'America/Mexico_City';
+        var dateStr = new Intl.DateTimeFormat('es-MX', {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: TZ
+        }).format(start);
+        var timeStr = new Intl.DateTimeFormat('es-MX', {
+          hour: 'numeric', minute: '2-digit', hour12: true, timeZone: TZ
+        }).format(start);
+
+        document.getElementById('appt-date').textContent = dateStr;
+        var timeEl = document.getElementById('appt-time');
+        timeEl.textContent = timeStr;
+        timeEl.classList.remove('hidden');
+
+        // 3. Build add-to-calendar links.
+        var toCalUTC = function (d) {
+          return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+        };
+        var startUTC = toCalUTC(start);
+        var endUTC = toCalUTC(end);
+
+        var googleUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+          + '&text=' + encodeURIComponent(calendarTitle)
+          + '&dates=' + startUTC + '/' + endUTC
+          + '&details=' + encodeURIComponent(calendarDetails)
+          + '&location=' + encodeURIComponent(calendarLocation);
+
+        var outlookUrl = 'https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent'
+          + '&subject=' + encodeURIComponent(calendarTitle)
+          + '&startdt=' + encodeURIComponent(start.toISOString())
+          + '&enddt=' + encodeURIComponent(end.toISOString())
+          + '&body=' + encodeURIComponent(calendarDetails)
+          + '&location=' + encodeURIComponent(calendarLocation);
+
+        var ics = [
+          'BEGIN:VCALENDAR',
+          'VERSION:2.0',
+          'PRODID:-//pediatralavielle//ES',
+          'BEGIN:VEVENT',
+          'UID:' + (params.get('uid') || (startUTC + '@pediatralavielle.com')),
+          'DTSTAMP:' + toCalUTC(new Date()),
+          'DTSTART:' + startUTC,
+          'DTEND:' + endUTC,
+          'SUMMARY:' + calendarTitle,
+          'LOCATION:' + calendarLocation,
+          'DESCRIPTION:' + calendarDetails,
+          'END:VEVENT',
+          'END:VCALENDAR'
+        ].join('\r\n');
+        var icsUrl = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+
+        document.getElementById('cal-google').href = googleUrl;
+        document.getElementById('cal-outlook').href = outlookUrl;
+        document.getElementById('cal-apple').href = icsUrl;
+        document.getElementById('add-to-calendar').classList.remove('hidden');
+      })();
+    </script>
+  </body>
+</html>
