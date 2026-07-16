@@ -1,0 +1,21 @@
+---
+import { client } from "../config/client";
+import Section from "./Section.astro";
+---
+<Section id="precios" title="Costo de la consulta">
+  <ul class="grid gap-3 sm:grid-cols-2">
+    {client.prices.map((p) => (
+      <li class="grid rounded-md bg-brand-lite px-4 py-4">
+        <span class="font-display text-figure font-semibold leading-[1.1] text-brand">
+          {p.amount}<span class="ml-1.5 text-xs text-muted">{p.currency}</span>
+        </span>
+        <span class="mt-1 font-semibold">{p.label}</span>
+        <span class="text-sm text-muted">{p.note}</span>
+      </li>
+    ))}
+  </ul>
+
+  <p class="mt-4 text-note text-muted">
+    Se aceptan {client.insurers.join(" · ")}
+  </p>
+</Section>

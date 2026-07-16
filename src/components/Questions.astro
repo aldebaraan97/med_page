@@ -1,0 +1,12 @@
+---
+// The demoted WhatsApp channel, shown only in self-serve mode. Booking-ready
+// patients use the embed; this is the small door for everyone else.
+import { client } from "../config/client";
+import WhatsAppCta from "./WhatsAppCta.astro";
+import WhatsAppIcon from "./WhatsAppIcon.astro";
+---
+<section class="mx-auto mt-11 max-w-wrap px-5">
+  <WhatsAppCta label={client.copy.ctaQuestions} context="questions">
+    <WhatsAppIcon slot="icon" />
+  </WhatsAppCta>
+</section>

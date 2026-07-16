@@ -1,0 +1,10 @@
+---
+// Sticky thumb-reach CTA. Body carries pb-22 to reserve its height.
+import { client } from "../config/client";
+import WhatsAppCta from "./WhatsAppCta.astro";
+---
+<div
+  class="fixed inset-x-0 bottom-0 border-t border-rule bg-[color-mix(in_srgb,var(--color-paper)_88%,transparent)] px-5 pt-3 pb-[calc(--spacing(3)+env(safe-area-inset-bottom))] backdrop-blur-[8px]"
+>
+  <WhatsAppCta label={client.copy.ctaDock} context="dock" full />
+</div>

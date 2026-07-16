@@ -1,0 +1,29 @@
+---
+// ⚠️ PORT TARGET — this component is a seam, not a finished build.
+//
+// The working Cal.com embed lives on the `dev` branch, including the fix for
+// the white-square render bug. Do NOT write a fresh embed here from the spec —
+// you'd regress that fix. Port dev's embed markup into this file, then set
+// booking.mode = "self-serve" in config/client.ts.
+//
+// What belongs here when you port:
+//   - the Cal.com inline embed, reading calLink from config (never hardcoded)
+//   - the embed theming against the @theme tokens (bg-paper, text-ink, etc.)
+//   - gclid passed as booking metadata (lib/attribution.ts, also from dev)
+//
+// While mode === "whatsapp" this component is never rendered, so an unfinished
+// state here cannot reach production.
+import { client } from "../config/client";
+import Section from "./Section.astro";
+
+const { calLink } = client.booking;
+if (!calLink) {
+  throw new Error(
+    'booking.mode is "self-serve" but booking.calLink is null. Set it in src/config/client.ts.'
+  );
+}
+---
+<Section id="agendar" title="Agenda tu cita">
+  {/* PORT dev's Cal.com inline embed here. calLink is validated above. */}
+  <div data-cal-link={calLink}></div>
+</Section>

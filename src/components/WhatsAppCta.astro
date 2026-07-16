@@ -1,0 +1,49 @@
+---
+// The single CTA definition. Used twice (hero + dock) — which is exactly why
+// it's a component: the pill's shape can never drift between the two.
+import { client } from "../config/client";
+import { whatsappHref } from "../lib/maps";
+
+interface Props {
+  label: string;
+  /** Fills the `cta` param on whatsapp_click so you can tell hero taps from
+      dock taps in Ads/GA without a second event name. */
+  context: string;
+  /** Optional location name, appended to the prefill and the dataLayer. */
+  location?: string;
+  full?: boolean;
+  class?: string;
+}
+
+const { label, context, location, full = false, class: extra = "" } = Astro.props;
+
+const message = location
+  ? `${client.contact.prefill} (${location})`
+  : client.contact.prefill;
+
+const href = whatsappHref(client.contact.whatsapp, message);
+
+const payload = JSON.stringify({
+  event: "whatsapp_click",
+  cta: context,
+  ...(location ? { location } : {}),
+});
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="noopener"
+  onclick={`dataLayer.push(${payload})`}
+  class:list={[
+    "inline-flex items-center gap-2.5 rounded-full bg-wa px-6 py-3.5",
+    "font-semibold text-lede text-wa-ink no-underline",
+    "hover:brightness-[1.06]",
+    "focus-visible:outline-[3px] focus-visible:outline-accent focus-visible:outline-offset-[3px]",
+    full && "w-full justify-center",
+    extra,
+  ]}
+>
+  <slot name="icon" />
+  {label}
+</a>

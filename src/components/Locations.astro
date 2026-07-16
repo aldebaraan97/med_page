@@ -1,0 +1,48 @@
+---
+// Renders 1..N locations. The old markup hardcoded exactly one; a clone with
+// two clinics (the dental prospect) was a rewrite. Now it's a config array.
+//
+// Layout borrows the price grid's rule deliberately: single column on mobile,
+// two-up at 34rem. Cards stay pure information — one CTA on the page, not one
+// per card. (WhatsAppCta already takes a `location` prop if you later decide
+// each site should get its own button and its own attribution.)
+import { client } from "../config/client";
+import Section from "./Section.astro";
+import { mapsHref } from "../lib/maps";
+
+const { locations, hours } = client;
+const multi = locations.length > 1;
+---
+<Section id="ubicacion" title="Dónde consultar">
+  <ul class:list={["grid gap-3", multi && "sm:grid-cols-2"]}>
+    {locations.map((loc) => (
+      <li class="grid">
+        <a
+          href={mapsHref(loc)}
+          target="_blank"
+          rel="noopener"
+          class="grid h-full content-start gap-1.5 rounded-md border border-rule bg-white px-5 py-4 text-inherit no-underline hover:border-brand focus-visible:outline-[3px] focus-visible:outline-accent focus-visible:outline-offset-2"
+        >
+          <span class="text-datum font-semibold">{loc.name}</span>
+
+          <span class="text-note leading-[1.5] text-muted">
+            {loc.street}<br />
+            {loc.colonia}<br />
+            {loc.postal} {loc.city}, {loc.state}
+          </span>
+
+          {loc.note && <span class="text-fine text-muted">{loc.note}</span>}
+
+          <span class="mt-1 self-end text-note font-semibold text-brand">
+            Abrir en Maps →
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  {/* One shared line while hours are global. If he splits days between the two
+      consultorios, move `hours` onto Location and render it inside each card —
+      a shared line would then be actively wrong. */}
+  <p class="mt-3.5 text-note"><strong>Horario:</strong> {hours.display}</p>
+</Section>

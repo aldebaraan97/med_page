@@ -1,0 +1,18 @@
+---
+// A titled band: the measure, the top rhythm, the h2 and its hairline.
+// Every band on the page goes through here, so the vertical rhythm has
+// exactly one definition and cannot drift.
+interface Props {
+  id: string;
+  title: string;
+}
+const { id, title } = Astro.props;
+---
+<section id={id} class="mx-auto mt-11 max-w-wrap px-5">
+  <h2
+    class="mb-4 border-b border-rule pb-2 font-display text-h2 font-semibold leading-[1.15] tracking-[-0.015em]"
+  >
+    {title}
+  </h2>
+  <slot />
+</section>

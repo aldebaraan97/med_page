@@ -1,1 +1,64 @@
 @import "tailwindcss";
+
+/* ============================================================
+   THEME — the brand knob.
+   Cloning to a new client = change the values in this block.
+   Nothing below @theme should need to be touched per client.
+   ============================================================ */
+@theme {
+  /* ---- Palette ---------------------------------------------
+     Named by role, not by hue, so a clone can swap the hex
+     without the component classes lying about themselves.     */
+  --color-paper: #f5f7f4; /* page background          */
+  --color-ink: #1a2b22; /* body text                */
+  --color-muted: #5c6b63; /* secondary text           */
+  --color-brand: #235347; /* hero field, headings     */
+  --color-brand-lite: #e3ede7; /* price card fill          */
+  --color-brand-soft: #a9c8ba; /* eyebrow on brand field   */
+  --color-brand-pale: #cfe0d6; /* lede on brand field      */
+  --color-accent: #d98e04; /* cédula rule, focus rings */
+  --color-rule: #d6dfd9; /* hairlines                */
+  --color-wa: #25d366; /* WhatsApp green (fixed)   */
+  --color-wa-ink: #08301a; /* text on WhatsApp green   */
+
+  /* ---- Type ------------------------------------------------ */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Named scale. Replaces the arbitrary values (text-[0.9375rem])
+     a literal port would have produced — those are unreadable and
+     unrepeatable. Each step here has a job.                     */
+  --text-micro: 0.6875rem; /* 11px — card eyebrow caps       */
+  --text-fine: 0.8125rem; /* 13px — hero eyebrow, footer    */
+  --text-note: 0.9375rem; /* 15px — addresses, meta lines   */
+  --text-lede: 1.0625rem; /* 17px — lede, CTA label         */
+  --text-datum: 1.05rem; /* 17px — cédula numbers, place   */
+  --text-h2: 1.375rem; /* 22px — band headings           */
+  --text-figure: 1.9rem; /* 30px — price amounts           */
+
+  /* ---- Layout ---------------------------------------------- */
+  --container-wrap: 46rem; /* the single measure -> max-w-wrap */
+
+  /* The design has exactly one breakpoint. Retuned from the stock
+     40rem to the 34rem the layout was actually drawn against. */
+  --breakpoint-sm: 34rem;
+}
+
+/* ============================================================
+   Base — things utilities genuinely cannot express.
+   Keep this short. If it grows, something belongs in a component.
+   ============================================================ */
+
+/* Global kill-switch for motion. A `*` override has no utility
+   equivalent, so it lives here on purpose. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
