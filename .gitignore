@@ -27,3 +27,4 @@ pnpm-debug.log*
 BOOKING_PROJECT_SPEC.md
 BOOKING_CLAUDE_CODE_PROMPT.md
 CLAUDE.mc
+node_modules/
