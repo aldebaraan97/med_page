@@ -1,5 +1,20 @@
 ---
+// src/pages/index.astro
+// Dr. Vicente Lavielle Sotomayor — Pediatra, Cuautitlán Izcalli
+//
+// ─────────────────────────────────────────────────────────────
+// ⚠️  CONFIRM BEFORE DEPLOY:
+//   1. ADDRESS — set to Hospital San Rafael, but ALL 20 Doctoralia
+//      reviews (Jan–Sep 2025) are from GRUPO MÉDICO MADRID. Confirm
+//      which location he actually consults at, and on which days.
+//      This address must match the Google Business Profile exactly.
+//   2. HOURS — confirmed 8:00–17:00 (2026-07-15). PLAYBOOK.md §2 was
+//      wrong (said 14:30); fix the playbook.
+//   3. SERVICES/PRICES — taken from his Doctoralia profile.
+// ─────────────────────────────────────────────────────────────
+
 import '../styles/global.css';
+<<<<<<< Updated upstream
 const doctorName = "Dr. Vicente Lavielle";
 const specialty = "Pediatra";
 const location = "Cuautitlán Izcalli";
@@ -8,19 +23,109 @@ const cedula = "1707043";
 const whatsappNumber = "525521068585";
 const whatsappMessage = encodeURIComponent("Hola, me gustaría agendar una cita con el Dr. Lavielle.");
 const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+=======
+
+const whatsappNumber = "525521068585"; // confirmed reaching the doctor 2026-07-15
+const whatsappMessage = "Hola, me gustaría agendar una cita con el Dr. Lavielle.";
+const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+
+// Confirmed 2026-07-15 — must match Google Business Profile exactly
+const hours = "Lunes a sábado, 8:00 a 17:00";
+const hoursSchema = "Mo-Sa 08:00-17:00";
+
+const clinic = {
+  name: "Hospital San Rafael",
+  street: "Autopista México–Querétaro Km 43 S/N, Manzana 006",
+  colonia: "Parque Industrial La Luz",
+  city: "Cuautitlán Izcalli",
+  state: "Estado de México",
+  postal: "54716",
+  placeId: "ChIJXz-KpPEf0oURdfHZbfdd_NU",
+  lat: 19.7030924,
+  lng: -99.2047868,
+};
+
+const mapsHref = `https://www.google.com/maps/search/?api=1&query=${clinic.lat}%2C${clinic.lng}&query_place_id=${clinic.placeId}`;
+
+// Source: his Doctoralia profile (2026-07-15)
+const services = [
+  { name: "Primera visita de pediatría", note: "$500" },
+  { name: "Visitas sucesivas", note: "Desde $500" },
+  { name: "Atención del recién nacido", note: "$500" },
+  { name: "Control de crecimiento y desarrollo", note: "$500" },
+  { name: "Asesoría en lactancia materna", note: "$500" },
+  { name: "Consulta de nutrición pediátrica", note: "$500" },
+  { name: "Obesidad infantil y del adolescente", note: "$500" },
+  { name: "Consulta prenatal pediátrica", note: "$500" },
+  { name: "Orientación para padres", note: "$500" },
+  { name: "Certificado médico", note: "$600" },
+  { name: "Carta pediátrica para pasaporte", note: "$600" },
+];
+
+const prices = [
+  { label: "Consulta", amount: "$500", note: "La mayoría de los servicios" },
+  { label: "Cartas y certificados", amount: "$600", note: "Documentos médicos" },
+];
+
+const insurers = ["GNP Seguros", "MetLife México", "Seguros Monterrey"];
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Physician",
+  name: "Dr. Vicente Lavielle Sotomayor",
+  medicalSpecialty: "Pediatric",
+  url: "https://pediatralavielle.com/",
+  telephone: `+${whatsappNumber}`,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: clinic.street,
+    addressLocality: clinic.city,
+    addressRegion: clinic.state,
+    postalCode: clinic.postal,
+    addressCountry: "MX",
+  },
+  geo: { "@type": "GeoCoordinates", latitude: clinic.lat, longitude: clinic.lng },
+  openingHours: hoursSchema,
+  availableService: services.map((s) => ({ "@type": "MedicalProcedure", name: s.name })),
+};
+>>>>>>> Stashed changes
 ---
 
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="es-MX">
   <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pediatra en Cuautitlán Izcalli | Dr. Vicente Lavielle</title>
+    <meta
+      name="description"
+      content="Pediatra en Cuautitlán Izcalli con más de 30 años de experiencia. Consulta $500. Hospital San Rafael. Agenda por WhatsApp."
+    />
+    <link rel="canonical" href="https://pediatralavielle.com/" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap"
+    />
+
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-TB2P8V8P');</script>
+    <script is:inline>
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != 'dataLayer' ? '&l=' + l : '';
+        j.async = true;
+        j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, 'script', 'dataLayer', 'GTM-TB2P8V8P');
+    </script>
     <!-- End Google Tag Manager -->
 
+<<<<<<< Updated upstream
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
@@ -28,14 +133,23 @@ const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={`${doctorName} - Pediatra en ${location} con más de ${yearsExperience} años de experiencia. Llama para agendar una cita.`} />
     <title>{doctorName} - Pediatra en {location}</title>
+=======
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+>>>>>>> Stashed changes
   </head>
 
-  <body class="bg-slate-50 text-slate-900 antialiased">
+  <body>
     <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TB2P8V8P"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <noscript>
+      <iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-TB2P8V8P"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"></iframe>
+    </noscript>
     <!-- End Google Tag Manager (noscript) -->
 
+<<<<<<< Updated upstream
     <main class="min-h-screen flex items-center justify-center px-4 py-12">
       <div class="max-w-xl w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12">
         
@@ -92,8 +206,330 @@ const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
         </div>
 
         
+=======
+    <header class="hero">
+      <div class="wrap">
+        <p class="eyebrow">Pediatra · Cuautitlán Izcalli</p>
+        <h1>Dr. Vicente Lavielle Sotomayor</h1>
+        <p class="lede">
+          Más de 30 años cuidando la salud de los niños de Cuautitlán Izcalli
+          y sus alrededores. Atención desde el nacimiento hasta la adolescencia.
+        </p>
+>>>>>>> Stashed changes
 
+        <a
+          class="cta"
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener"
+          onclick="dataLayer.push({event: 'whatsapp_click'})"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20">
+            <path
+              fill="currentColor"
+              d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.5h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.01-1.04 2.47s1.06 2.87 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.69.25-1.28.17-1.41-.07-.13-.27-.2-.57-.35M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2"
+            ></path>
+          </svg>
+          Enviar WhatsApp
+        </a>
+        <p class="cta-sub">Respuesta directa del doctor · {hours}</p>
       </div>
+<<<<<<< Updated upstream
     </main>
+=======
+    </header>
+
+    <!-- Signature: the credential document -->
+    <section class="wrap" id="credenciales">
+      <div class="cedula">
+        <p class="cedula-head">Registro profesional</p>
+        <dl>
+          <div>
+            <dt>Cédula profesional</dt>
+            <dd class="mono">1707043</dd>
+          </div>
+          <div>
+            <dt>Cédula de especialidad</dt>
+            <dd class="mono">4110506</dd>
+          </div>
+          <div>
+            <dt>Formación</dt>
+            <dd>UNAM · Especialidad en Hospital del Niño DIF</dd>
+          </div>
+        </dl>
+        <p class="cedula-foot">
+          25 años en Hospital San Rafael · 14 años en Hospital Materno Infantil
+        </p>
+      </div>
+    </section>
+
+    <section class="wrap band" id="servicios">
+      <h2>Servicios</h2>
+      <ul class="services">
+        {services.map((s) => (
+          <li>
+            <span class="s-name">{s.name}</span>
+            <span class="s-note">{s.note}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="wrap band" id="precios">
+      <h2>Costo de la consulta</h2>
+      <ul class="prices">
+        {prices.map((p) => (
+          <li>
+            <span class="p-amount">{p.amount}<span class="p-cur">MXN</span></span>
+            <span class="p-label">{p.label}</span>
+            <span class="p-note">{p.note}</span>
+          </li>
+        ))}
+      </ul>
+      <p class="insurers">
+        Se aceptan {insurers.join(" · ")}
+      </p>
+    </section>
+
+    <section class="wrap band" id="ubicacion">
+      <h2>Dónde consulta</h2>
+      <a class="place" href={mapsHref} target="_blank" rel="noopener">
+        <span class="place-name">{clinic.name}</span>
+        <span class="place-addr">
+          {clinic.street}<br />
+          {clinic.colonia}<br />
+          {clinic.postal} {clinic.city}, {clinic.state}
+        </span>
+        <span class="place-link">Abrir en Maps →</span>
+      </a>
+      <p class="hours"><strong>Horario:</strong> {hours}</p>
+    </section>
+
+    <footer class="wrap">
+      <p>
+        Dr. Vicente Lavielle Sotomayor · Cédula profesional 1707043 ·
+        Pediatra en Cuautitlán Izcalli, Estado de México
+      </p>
+    </footer>
+
+    <!-- Sticky mobile CTA -->
+    <div class="dock">
+      <a
+        class="cta cta-dock"
+        href={whatsappHref}
+        target="_blank"
+        rel="noopener"
+        onclick="dataLayer.push({event: 'whatsapp_click'})"
+      >
+        Agendar por WhatsApp
+      </a>
+    </div>
+
+    <style>
+      html { scroll-behavior: smooth; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+      :root {
+        --paper: #f5f7f4;
+        --ink: #1a2b22;
+        --muted: #5c6b63;
+        --moss: #235347;
+        --moss-lite: #e3ede7;
+        --sun: #d98e04;
+        --wa: #25d366;
+        --rule: #d6dfd9;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        padding-bottom: 88px;
+      }
+
+      .wrap { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem; }
+
+      h1, h2 {
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+      }
+
+      /* Hero */
+      .hero {
+        background: var(--moss);
+        color: var(--paper);
+        padding: 3rem 0 2.5rem;
+      }
+      .eyebrow {
+        margin: 0 0 0.75rem;
+        font-size: 0.8125rem;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: #a9c8ba;
+      }
+      .hero h1 { margin: 0 0 0.75rem; font-size: clamp(2rem, 6vw, 3rem); }
+      .lede {
+        margin: 0 0 1.75rem;
+        font-size: 1.0625rem;
+        color: #cfe0d6;
+        max-width: 34rem;
+      }
+
+      /* CTA */
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: var(--wa);
+        color: #08301a;
+        font-weight: 600;
+        font-size: 1.0625rem;
+        text-decoration: none;
+        padding: 0.9rem 1.5rem;
+        border-radius: 999px;
+      }
+      .cta:hover { filter: brightness(1.06); }
+      .cta:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+      .cta-sub {
+        margin: 0.85rem 0 0;
+        font-size: 0.875rem;
+        color: #a9c8ba;
+      }
+
+      /* Signature: cédula card */
+      .cedula {
+        margin: -1.75rem 0 0;
+        background: #fff;
+        border: 1px solid var(--rule);
+        border-top: 4px solid var(--sun);
+        border-radius: 4px;
+        padding: 1.25rem 1.4rem;
+        box-shadow: 0 1px 2px rgb(26 43 34 / 0.06);
+      }
+      .cedula-head {
+        margin: 0 0 0.9rem;
+        font-size: 0.6875rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--sun);
+        font-weight: 600;
+      }
+      .cedula dl { margin: 0; display: grid; gap: 0.7rem; }
+      .cedula dt {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+      }
+      .cedula dd { margin: 0.1rem 0 0; font-size: 0.975rem; }
+      .cedula-foot {
+        margin: 1rem 0 0;
+        padding-top: 0.85rem;
+        border-top: 1px solid var(--rule);
+        font-size: 0.8125rem;
+        color: var(--muted);
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 1.05rem !important;
+        letter-spacing: 0.04em;
+      }
+      @media (min-width: 34rem) {
+        .cedula dl { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+      }
+
+      /* Bands */
+      .band { margin-top: 2.75rem; }
+      .band h2 {
+        margin: 0 0 1rem;
+        font-size: 1.375rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .services { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; }
+      .services li {
+        padding: 0.7rem 0;
+        border-bottom: 1px solid var(--rule);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0.25rem 1rem;
+      }
+      .s-name { font-weight: 600; }
+      .s-note { color: var(--muted); font-size: 0.9rem; }
+
+      .prices { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
+      @media (min-width: 34rem) { .prices { grid-template-columns: 1fr 1fr; } }
+      .prices li {
+        background: var(--moss-lite);
+        border-radius: 6px;
+        padding: 1rem 1.1rem;
+        display: grid;
+      }
+      .p-amount {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.9rem;
+        font-weight: 600;
+        color: var(--moss);
+        line-height: 1.1;
+      }
+      .p-cur { font-size: 0.75rem; margin-left: 0.35rem; color: var(--muted); }
+      .p-label { font-weight: 600; margin-top: 0.2rem; }
+      .p-note { color: var(--muted); font-size: 0.875rem; }
+      .insurers { margin: 1rem 0 0; color: var(--muted); font-size: 0.9375rem; }
+
+      /* Place */
+      .place {
+        display: grid;
+        gap: 0.35rem;
+        background: #fff;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        padding: 1.1rem 1.2rem;
+        text-decoration: none;
+        color: inherit;
+      }
+      .place:hover { border-color: var(--moss); }
+      .place:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+      .place-name { font-weight: 600; font-size: 1.05rem; }
+      .place-addr { color: var(--muted); font-size: 0.9375rem; line-height: 1.5; }
+      .place-link { color: var(--moss); font-weight: 600; font-size: 0.9375rem; margin-top: 0.3rem; }
+      .hours { margin: 0.9rem 0 0; font-size: 0.9375rem; }
+
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.25rem;
+        padding-bottom: 1.5rem;
+        border-top: 1px solid var(--rule);
+        color: var(--muted);
+        font-size: 0.8125rem;
+      }
+      footer p { margin: 0; }
+
+      /* Sticky dock */
+      .dock {
+        position: fixed;
+        inset: auto 0 0 0;
+        padding: 0.75rem 1.25rem calc(0.75rem + env(safe-area-inset-bottom));
+        background: color-mix(in srgb, var(--paper) 88%, transparent);
+        backdrop-filter: blur(8px);
+        border-top: 1px solid var(--rule);
+      }
+      .cta-dock { width: 100%; justify-content: center; }
+
+      @media (prefers-reduced-motion: reduce) {
+        * { transition: none !important; animation: none !important; }
+      }
+    </style>
+>>>>>>> Stashed changes
   </body>
 </html>
