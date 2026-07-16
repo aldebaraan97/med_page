@@ -1,15 +1,19 @@
 ---
 import { client } from "../config/client";
 const { practitioner, locations } = client;
-const cedula = practitioner.licenses.find((l) => l.label.startsWith("Cédula profesional"));
-const city = locations[0].city;
-const state = locations[0].state;
+
+// Explicitly marked, not string-matched. A clone that renames its credential
+// label keeps working; a clone that marks none simply omits the segment
+// rather than rendering "Cédula profesional  ·" with a hole in it.
+const primary = practitioner.licenses.find((l) => l.primary);
+const { city, state } = locations[0];
 ---
 <footer
   class="mx-auto mt-12 max-w-wrap border-t border-rule px-5 pt-5 pb-6 text-fine text-muted"
 >
   <p>
-    {practitioner.name} · Cédula profesional {cedula?.value} ·
-    {practitioner.specialtyLabel} en {city}, {state}
+    {practitioner.name}
+    {primary && <> · {primary.label} {primary.value}</>}
+    {" "}· {practitioner.specialtyLabel} en {city}, {state}
   </p>
 </footer>
