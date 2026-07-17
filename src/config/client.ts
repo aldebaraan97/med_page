@@ -134,47 +134,46 @@ export const client: ClientConfig = {
       lng: -99.2047868,
     },
     {
-      // ⚠️ CONFIRM BEFORE DEPLOY — three unknowns on this location:
-      //   1. NAME. The header comment on the old index.astro flagged that all
-      //      20 Doctoralia reviews (Jan–Sep 2025) came from GRUPO MÉDICO
-      //      MADRID, not San Rafael. If this address IS Grupo Médico Madrid,
-      //      that open question is now answered — but confirm, don't assume.
-      //   2. PLACE ID + COORDS. Not supplied and not inventable. Left null;
-      //      mapsHref() falls back to an address text query, which works but
-      //      is fuzzier than a Place ID pin. Pull the real ID from the Google
-      //      Business Profile / Place ID Finder before launch.
-      //   3. DAYS. `hours` above is currently global. If he splits days
-      //      between sites, move `hours` onto Location and the patient-facing
-      //      copy stops being a lie.
-      name: "TODO: nombre del consultorio",
-      street: "Av. Paseo del Bosque, Mz. 29 Lt. 8",
+      name: "Hospital Polimédica de Lago",
+      street: "Av. P. del bosque Mz 29 Lt 8",
       colonia: "Bosques de Morelos",
       city: "Cuautitlán Izcalli",
       state: "Estado de México",
       postal: "54760",
+      placeId: "ChIJ1Ice0oVygxGgfMpclQ",
+      lat: 19.6308889,
+      lng: -99.2295833,
+    },
+    {
+      name: "Grupo médico Madrid",
+      street: "Andador Madrid 321",
+      colonia: "Centro Urbano",
+      city: "Cuautitlán Izcalli",
+      state: "Estado de México",
+      postal: "54700",
       placeId: null,
       lat: null,
       lng: null,
-    },
+    }
   ],
 
   // Source: his Doctoralia profile (2026-07-15).
   services: [
-    { name: "Primera visita de pediatría", note: "$500" },
-    { name: "Visitas sucesivas", note: "Desde $500" },
-    { name: "Atención del recién nacido", note: "$500" },
-    { name: "Control de crecimiento y desarrollo", note: "$500" },
-    { name: "Asesoría en lactancia materna", note: "$500" },
-    { name: "Consulta de nutrición pediátrica", note: "$500" },
-    { name: "Obesidad infantil y del adolescente", note: "$500" },
-    { name: "Consulta prenatal pediátrica", note: "$500" },
-    { name: "Orientación para padres", note: "$500" },
+    { name: "Primera visita de pediatría", note: "$600" },
+    { name: "Visitas sucesivas", note: "Desde $600" },
+    { name: "Atención del recién nacido", note: "$600" },
+    { name: "Control de crecimiento y desarrollo", note: "$600" },
+    { name: "Asesoría en lactancia materna", note: "$600" },
+    { name: "Consulta de nutrición pediátrica", note: "$600" },
+    { name: "Obesidad infantil y del adolescente", note: "$600" },
+    { name: "Consulta prenatal pediátrica", note: "$600" },
+    { name: "Orientación para padres", note: "$600" },
     { name: "Certificado médico", note: "$600" },
     { name: "Carta pediátrica para pasaporte", note: "$600" },
   ],
 
   prices: [
-    { label: "Consulta", amount: "$500", currency: "MXN", note: "La mayoría de los servicios" },
+    { label: "Consulta", amount: "$600", currency: "MXN", note: "La mayoría de los servicios" },
     { label: "Cartas y certificados", amount: "$600", currency: "MXN", note: "Documentos médicos" },
   ],
 
