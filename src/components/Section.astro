@@ -5,10 +5,12 @@
 interface Props {
   id: string;
   title: string;
+  /** Escape hatch for per-section extras (e.g. scroll-margin on an ad anchor). */
+  class?: string;
 }
-const { id, title } = Astro.props;
+const { id, title, class: extra = "" } = Astro.props;
 ---
-<section id={id} class="mx-auto mt-11 max-w-wrap px-5">
+<section id={id} class:list={["mx-auto mt-11 max-w-wrap px-5", extra]}>
   <h2
     class="mb-4 border-b border-rule pb-2 font-display text-h2 font-semibold leading-[1.15] tracking-[-0.015em]"
   >

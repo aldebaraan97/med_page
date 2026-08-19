@@ -43,6 +43,31 @@ export interface Practitioner {
   photo?: { src: ImageMetadata; alt: string };
 }
 
+/** One vaccine offered, as a name and the plain-language "what it prevents". */
+export interface VaccineItem {
+  name: string;
+  desc: string;
+}
+
+/**
+ * The #vacunas section. Optional: a clone without a vaccination offer omits
+ * the block and the section disappears — no code change.
+ *
+ * `id` is load-bearing: the vaccination Google Ads ad group's final URL is
+ * https://pediatralavielle.com/#vacunas. Changing it breaks that ad group.
+ */
+export interface VaccinesBlock {
+  id: string;
+  heading: string;
+  blurb: string;
+  items: VaccineItem[];
+  /** One-line credibility strip under the items. */
+  trust: string;
+  cta: string;
+  /** Section-specific WhatsApp prefill, so vaccine leads arrive pre-labelled. */
+  prefill: string;
+}
+
 /**
  * How this client takes appointments.
  *
@@ -93,6 +118,7 @@ export interface ClientConfig {
   tracking: {
     gtmId: string;
   };
+  vaccines?: VaccinesBlock;
 }
 
 export const client: ClientConfig = {
@@ -209,5 +235,25 @@ export const client: ClientConfig = {
 
   tracking: {
     gtmId: "GTM-TB2P8V8P",
+  },
+
+  // The landing target for the vaccination ad group. `id` must stay "vacunas".
+  vaccines: {
+    id: "vacunas",
+    heading: "Aplicación de vacunas",
+    blurb:
+      "El Dr. Lavielle aplica personalmente las vacunas de sarampión y rubéola para mantener el esquema de vacunación de tu hijo/a al día. Trae la cartilla y con gusto revisamos qué le corresponde.",
+    items: [
+      {
+        name: "Triple Viral (SRP)",
+        desc: "Protege contra sarampión, rubéola y parotiditis (paperas).",
+      },
+      { name: "Doble Viral (SR)", desc: "Protege contra sarampión y rubéola." },
+    ],
+    trust:
+      "Aplicadas por el Dr. Lavielle · más de 30 años de experiencia · Cédula profesional 1707043 · Cuautitlán Izcalli",
+    cta: "Preguntar por vacunas por WhatsApp",
+    prefill:
+      "Hola, quisiera información sobre la aplicación de vacunas (Triple Viral / Doble Viral) para mi hijo/a.",
   },
 };

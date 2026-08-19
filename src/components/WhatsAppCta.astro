@@ -11,15 +11,23 @@ interface Props {
   context: string;
   /** Optional location name, appended to the prefill and the dataLayer. */
   location?: string;
+  /** Section-specific opening message. Defaults to the global prefill, so
+      existing call sites (hero, dock) are unchanged. */
+  prefill?: string;
   full?: boolean;
   class?: string;
 }
 
-const { label, context, location, full = false, class: extra = "" } = Astro.props;
+const {
+  label,
+  context,
+  location,
+  prefill = client.contact.prefill,
+  full = false,
+  class: extra = "",
+} = Astro.props;
 
-const message = location
-  ? `${client.contact.prefill} (${location})`
-  : client.contact.prefill;
+const message = location ? `${prefill} (${location})` : prefill;
 
 const href = whatsappHref(client.contact.whatsapp, message);
 

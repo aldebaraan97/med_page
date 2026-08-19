@@ -10,6 +10,7 @@ import Hero from "../components/Hero.astro";
 import Credentials from "../components/Credentials.astro";
 import Booking from "../components/Booking.astro";
 import Services from "../components/Services.astro";
+import Vaccines from "../components/Vaccines.astro";
 import Pricing from "../components/Pricing.astro";
 import Locations from "../components/Locations.astro";
 import Questions from "../components/Questions.astro";
@@ -29,6 +30,11 @@ const selfServe = client.booking.mode === "self-serve";
   {selfServe && <Booking />}
 
   <Services />
+
+  {/* Optional config blocks. A clone omits them and the sections vanish —
+      no code change, which is the whole point of the config-driven split. */}
+  {client.vaccines && <Vaccines />}
+
   <Pricing />
   <Locations />
 
