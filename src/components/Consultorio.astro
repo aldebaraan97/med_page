@@ -12,7 +12,10 @@ const multi = c.images.length > 1;
 <Section id="consultorio" title={c.heading}>
   <p class="max-w-[38rem] text-lede">{c.blurb}</p>
 
-  <ul class:list={["mt-4 grid gap-3", multi && "sm:grid-cols-2"]}>
+  {/* A single photo is capped well short of the measure — full-bleed made the
+      room the loudest thing on the page. Two photos split the measure instead,
+      which lands each of them at about the same size. */}
+  <ul class:list={["mt-4 grid gap-3", multi ? "sm:grid-cols-2" : "max-w-[24rem]"]}>
     {c.images.map((img) => (
       <li class="grid">
         {/* width only — Astro derives the height from the source, so a
