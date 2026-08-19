@@ -1,224 +1,218 @@
-# CLAUDE.md — `med_page` (Pediatra Lavielle booking landing page)
+# CLAUDE.md — `med_page` (Pediatra Lavielle landing page)
 
 Context doc for troubleshooting. Self-contained: you can reason about this project
-without repo access. Pairs with `BOOKING_PROJECT_SPEC.md` (the *why*) and
-`BOOKING_CLAUDE_CODE_PROMPT.md` (the *how*), which live one directory up.
+without repo access. Pairs with `BOOKING_PROJECT_SPEC.md` (the *why* of the booking
+work) and `BOOKING_CLAUDE_CODE_PROMPT.md` (the *how*), which live one directory up.
+
+> **This doc was rewritten to match the componentized, config-driven codebase.**
+> An earlier version described a single-file `index.astro` with an inline Cal.com
+> embed as the primary CTA — that is obsolete. If anything here disagrees with the
+> code, the code wins; fix this doc.
 
 ---
 
 ## What this is
 
-A single-page paid-ad landing page for **Dr. Vicente Lavielle Sotomayor** (pediatra,
-Cuautitlán Izcalli, México). It is the conversion surface for Google Ads traffic.
-
-**The goal of the current work:** move the measured conversion off a WhatsApp tap
-(which fired as the user *left* the page, losing the `gclid` and capturing no
-patient data) onto an **owned on-page booking flow** that writes into a calendar we
-control. The booking widget (Cal.com) is the new primary CTA; the real conversion
-fires on an owned confirmation page (`/cita-confirmada`) that only loads on a
-successful booking.
+A single-page paid-ad landing page for **Dr. Vicente Joaquín Lavielle Sotomayor**
+(pediatra, Cuautitlán Izcalli, Estado de México). It is the conversion surface for
+Google Ads traffic.
 
 - **Live site:** https://pediatralavielle.com/
 - **Repo:** https://github.com/aldebaraan97/med_page (deploys from `main` on push, Cloudflare Pages)
 - **This is the LIVE website.** Pushing to `main` deploys to production. Work on a branch.
 
+**Current contact model:** `booking.mode` is `"whatsapp"`. Patients reach the doctor
+via WhatsApp CTAs (hero + sticky dock); he agrees a time in chat and enters it
+himself. The Cal.com self-serve booking flow is **built but dormant** — it only
+renders when `booking.mode` is flipped to `"self-serve"` (see below).
+
 ---
 
 ## Stack
 
-- **Astro v6.4.3** — static site generator, zero-runtime output (no SSR, no backend).
-- **Tailwind CSS v4.3** — via the `@tailwindcss/vite` plugin (NOT a separate config
-  file; v4 is CSS-first). The only stylesheet is `src/styles/global.css`, which is
-  one line: `@import "tailwindcss";`. There is **no `tailwind.config.js`**.
-- **Node ≥ 22.12** (see `package.json` `engines`).
-- No database, no API keys, no secrets in the repo, no runtime dependencies beyond
-  the Cal.com embed script that loads client-side from `app.cal.com`.
+- **Astro** + **Tailwind CSS v4** via the `@tailwindcss/vite` plugin (CSS-first; there
+  is **no `tailwind.config.js`**). Static, zero-runtime output — no SSR, no backend.
+- Exact versions live in `package.json` (`engines` pins the Node floor). Treat
+  `package.json` as the source of truth for versions — do not hardcode a version in
+  this doc again.
+- The only stylesheet is `src/styles/global.css`: `@import "tailwindcss";` plus an
+  **`@theme` block** that defines the design tokens (brand colors, `font-display`,
+  `max-w-wrap`, radius, spacing). Components reference these tokens; nothing is
+  hardcoded hex.
+- No database, no API keys, no secrets, no runtime deps beyond the Cal.com embed
+  script (which only loads in self-serve mode).
 
 ### Commands
 ```bash
 npm install
-npm run dev      # dev server at http://localhost:4321/
+npm run dev      # dev server
 npm run build    # static output to dist/
 npm run preview  # serve the built dist/
 ```
 
 ---
 
-## File structure
+## Architecture — the important part
+
+**`src/config/client.ts` + the `@theme` block are the entire per-client delta.**
+Cloning to another client (e.g. the dental prospect) should touch those two places
+and nothing else. Components in `src/components/` are **client-agnostic**: if a change
+forces client content into a component, that's the signal the component needs a
+**prop**, with the literal staying in `client.ts`.
 
 ```
 med_page/
-├── astro.config.mjs          # Astro config; registers the Tailwind Vite plugin. Minimal.
-├── package.json              # deps: astro, tailwindcss, @tailwindcss/vite. Node >=22.12.
-├── tsconfig.json             # extends astro/tsconfigs/base
-├── public/
-│   ├── favicon.ico
-│   └── favicon.svg
+├── astro.config.mjs
+├── package.json
+├── public/                     # favicons, static passthrough
 └── src/
-    ├── styles/
-    │   └── global.css        # one line: @import "tailwindcss";
+    ├── assets/                 # optimized images (portrait, consultorio) — Astro <Image>
+    ├── config/
+    │   └── client.ts           # THE per-client config (see below)
+    ├── layouts/
+    │   └── Base.astro           # <head>, GTM, shared shell for both pages
+    ├── lib/
+    │   ├── maps.ts             # Google Maps link/embed helpers (Place ID → URL)
+    │   └── schema.ts           # schema.org structured data (reads client.ts)
+    ├── components/
+    │   ├── Hero.astro          # eyebrow, name (H1), lede, WhatsApp CTA, + portrait
+    │   ├── Credentials.astro   # cédulas, formación, reviews
+    │   ├── Booking.astro       # Cal.com inline embed — self-serve mode ONLY
+    │   ├── Services.astro      # the services array
+    │   ├── Vaccines.astro      # #vacunas section (config-driven, optional)
+    │   ├── Pricing.astro       # price rows
+    │   ├── Locations.astro     # the three consultorios (maps via lib/maps.ts)
+    │   ├── Consultorio.astro   # bottom photo section (config-driven, optional)
+    │   ├── Questions.astro     # WhatsApp questions channel — self-serve mode ONLY
+    │   ├── SiteFooter.astro
+    │   ├── Dock.astro          # sticky bottom WhatsApp CTA
+    │   ├── WhatsAppCta.astro   # the WhatsApp button (fires whatsapp_click)
+    │   └── WhatsAppIcon.astro
     └── pages/
-        ├── index.astro       # THE landing page (everything lives here)
-        └── cita-confirmada.astro   # NEW confirmation page = the conversion surface
+        ├── index.astro         # assembly order only — no literals, no logic beyond the mode gate
+        └── cita-confirmada.astro   # conversion surface — self-serve flow only
 ```
 
-Astro routing is file-based: `src/pages/index.astro` → `/`, and
-`src/pages/cita-confirmada.astro` → `/cita-confirmada`.
+### `index.astro` is an assembly order
+It imports the components and lays them out. The only logic is the mode gate:
+```
+Hero → Credentials → [Booking] → Services → [Vaccines] → Pricing → Locations
+     → [Consultorio] → [Questions] → SiteFooter → Dock
+```
+- `{selfServe && <Booking />}` and `{selfServe && <Questions />}` render only when
+  `booking.mode === "self-serve"`.
+- `{client.vaccines && <Vaccines />}` and `{client.consultorio && <Consultorio />}`
+  render only when those optional config blocks exist — so the dental clone drops
+  them by omitting the block, no code change.
 
-There is no layout component, no shared header/footer, no framework islands. Both
-pages are standalone full HTML documents. Styling is Tailwind utility classes
-inline in the markup. Design tokens in use: `bg-slate-50` page bg, white card
-(`max-w-xl rounded-2xl shadow-sm border border-slate-200`), `blue-600` accent,
-`slate` text scale.
+### `client.ts` — what lives there
+`site`, `booking` (`mode` + `calLink`), `practitioner` (name, specialty, licenses,
+tenure, **`photo`**), `contact` (whatsapp digits + prefill), `hours` (display +
+schema.org), `locations[]` (name, address, Place ID, lat/lng), `services[]`,
+`prices[]`, `insurers[]`, `copy` (title/description/eyebrow/lede/CTA labels),
+`tracking` (`gtmId`), and the optional **`vaccines`** and **`consultorio`** blocks.
+
+Images are **imported at the top of `client.ts`** and referenced in the config
+(`photo.src`, `consultorio.images[].src`, typed `ImageMetadata`). This keeps the
+per-client delta in one file while still using Astro's `<Image>` optimization.
+
+### The `booking.mode` knob
+- `"whatsapp"` (current): the doctor is the contact channel. Hero + Dock WhatsApp
+  CTAs are the whole call-to-action. `Booking` and `Questions` do not render.
+- `"self-serve"`: the Cal.com inline embed becomes the primary CTA under the
+  credentials; WhatsApp demotes to a `Questions` channel near the end; bookings
+  redirect to `/cita-confirmada`, which fires `booking_confirmed`.
+- Both modes terminate at the same calendar, so the downstream n8n reminder flow is
+  identical. This is a per-client knob, not a global decision.
 
 ---
 
-## `index.astro` — anatomy
+## Current client facts (from `client.ts`, confirmed 2026-07-15 unless noted)
 
-Frontmatter (the `---` block at top) holds JS constants, then the HTML. Key constants:
-
-| Constant | Purpose |
-|---|---|
-| `calLink` | Cal.com event link, format `<username>/<event-slug>`. **PLACEHOLDER** `"lavielle/consulta"` — see Pending. |
-| `calBrandColor` | `#2563eb` (Tailwind blue-600) — themes the embed to match the page. |
-| `hoursDisplay` | `"lunes a sábado, 8:00 a 14:30"` — single source for displayed hours. |
-| `waDoctor` / `waAssistant` | WhatsApp numbers (doctor `525521068585`, assistant `525563232833`). |
-| `waDoctorLink` / `waAssistantLink` | `https://wa.me/...?text=Tengo una duda` |
-
-Page sections, top to bottom:
-1. **Hero** — name, specialty, years.
-2. **Credentials row** — cédula, UNAM, "20+ opiniones verificadas".
-3. **Booking widget (PRIMARY CTA)** — `<div id="cal-booking">` filled by the Cal.com
-   inline embed. Heading "Agenda tu cita en línea" + hours line.
-4. **WhatsApp questions channel** — two small low-weight icon links (doctor +
-   assistant) under "¿Dudas? Escríbenos". Demoted; no longer a booking door.
-5. **Bio** — experience, hospital, insurers.
-6. **Doctoralia trust text** — plain "⭐ 20+ opiniones verificadas en Doctoralia"
-   (the booking button was removed).
-
-Two inline scripts (both `is:inline`, so Astro ships them verbatim):
-- In `<head>`: **gclid capture** — reads `gclid`/`gbraid`/`wbraid` from the URL into
-  `sessionStorage` (keys prefixed `lav_`), and defines `window.getAdAttribution()`.
-- Before `</body>`: **Cal.com embed loader + init** — standard Cal embed bootstrap,
-  then `Cal("inline", {...})` pointed at `#cal-booking`, then `Cal("ui", {...})` for
-  theming. Reads `getAdAttribution()` and passes the keys as booking metadata.
-
-GTM container `GTM-TB2P8V8P` loads in `<head>` (standard snippet, present on both pages).
+- **Name:** Dr. Vicente Joaquín Lavielle Sotomayor.
+- **Hours:** Lunes a sábado, 8:00 a 17:00 (`Mo-Sa 08:00-17:00`). *This supersedes the
+  earlier 8:00–14:30 in the booking spec — 17:00 is the re-confirmed value.*
+- **WhatsApp:** `525521068585` (doctor). Prefill: appointment request.
+- **Locations (three):** Hospital San Rafael (Parque Industrial La Luz),
+  Hospital Polimédica de Lago (Bosques de Morelos), Grupo Médico Madrid (no Place ID
+  yet → maps link falls back to an address text query).
+- **Price:** $600 MXN for most services and for cartas/certificados.
+- **Insurers:** GNP, MetLife, Seguros Monterrey.
+- **`#vacunas` section:** Triple Viral (SRP) and Doble Viral (SR), applied by the
+  doctor. The vaccination Google Ads ad group's final URL is
+  `https://pediatralavielle.com/#vacunas` — **the anchor must stay exactly `vacunas`.**
 
 ---
 
-## `cita-confirmada.astro` — the conversion surface
+## Tracking / fixed identifiers — DO NOT CHANGE
 
-A new static page that **only loads on a successful booking** (Cal.com redirects
-here after the slot locks — configured in the Cal.com dashboard, not in code).
-
-Its single `is:inline` script, on load:
-1. Pushes **one** `booking_confirmed` event to `dataLayer` (this is the conversion;
-   GTM maps it to the Google Ads tag — the Ads tag is NOT inline in the page).
-2. Reads booking details from the query params Cal.com forwards
-   (`startTime`, `endTime`, `attendeeName`, `uid` — ISO-8601 UTC times), formats
-   them in `America/Mexico_City` / `es-MX`, and renders the real appointment.
-3. Builds **add-to-calendar** links (Google, Outlook, Apple `.ics` via a data URI).
-
-If params are missing it degrades gracefully (shows "Tu cita ha sido registrada",
-hides the calendar buttons) but still fires the conversion.
-
-**Test URL (local):**
-```
-/cita-confirmada?startTime=2026-07-02T14:00:00.000Z&endTime=2026-07-02T14:30:00.000Z&attendeeName=Mariana%20Lopez&uid=abc123
-```
-Expect: "jueves, 2 de julio de 2026", "8:00 a.m." (14:00 UTC → UTC-6), working
-calendar links, exactly one `booking_confirmed` in `dataLayer`.
+- GTM container: `GTM-TB2P8V8P` (loads in `Base.astro`, present on all pages).
+- `whatsapp_click` — the live conversion event. Fired by `WhatsAppCta`. Carries a
+  `context` param (`hero`, `dock`, `vacunas`, …) to distinguish which CTA. **Never
+  rename the event; adding a new `context` value is fine.**
+- Google Ads Conversion ID `AW-18189103348` and the `booking_confirmed` event are
+  reserved for the self-serve flow. The Ads conversion **tag** lives in GTM, never
+  inline in a page.
 
 ---
 
-## The conversion data flow (end to end)
+## `cita-confirmada.astro` (self-serve only, currently dormant)
 
-```
-Google Ad click (?gclid=...) 
-   → index.astro head script stores gclid in sessionStorage
-   → patient books in Cal.com embed; gclid attached as booking metadata[gclid]
-   → Cal.com locks the slot + two-way syncs to the owned Google Calendar
-   → Cal.com redirects to /cita-confirmada?startTime=...&attendeeName=...
-   → confirmation page fires booking_confirmed → GTM → Google Ads conversion
-   → (Phase 2, later) stored gclid uploaded to Ads when appointment marked attended
-```
-
-**Attribution depends on a GTM Conversion Linker** being live on all pages (it
-persists the gclid first-party cookie across the page hop). That's GTM config, not
-code. Without it, confirmation-page conversions won't attribute to the ad click.
-
----
-
-## Fixed identifiers — DO NOT CHANGE
-
-- GTM container: `GTM-TB2P8V8P`
-- Google Ads Conversion ID: `AW-18189103348`
-- Existing event name: `whatsapp_click` (kept; now carries a `contact` param
-  `doctor`/`assistant` — the name must not be renamed)
-- New conversion event: `booking_confirmed` (fires only on `/cita-confirmada`)
-
-The Google Ads conversion **tag** must never be inlined in a page — it lives in GTM.
-
----
-
-## Status: built vs. pending
-
-### Done in code (in this branch, not yet pushed)
-- [x] gclid/gbraid/wbraid capture + `getAdAttribution()` helper
-- [x] Cal.com inline embed as primary CTA, themed, gclid threaded as metadata
-- [x] `/cita-confirmada` page (dynamic details + add-to-calendar + `booking_confirmed`)
-- [x] WhatsApp demoted to two `contact`-tagged question icons
-- [x] Doctoralia booking button removed (reviews trust text kept)
-- [x] Hours corrected to 8:00–14:30
-
-### Pending — PLACEHOLDER / BLOCKERS in code
-- [ ] **`calLink` is a placeholder** (`"lavielle/consulta"`). Until the real Cal.com
-      event type exists and the slug is swapped in (`index.astro` frontmatter), the
-      embed renders a Cal.com "not found" iframe and the booking flow can't be
-      tested end-to-end. **This is the #1 thing to fix to test real bookings.**
-
-### Pending — manual config OUTSIDE this repo (no code)
-- [ ] **Cal.com** event type "Consulta pediátrica": Requires Confirmation = OFF,
-      Email Verification = OFF, availability 8:00–14:30 Lun–Sáb, custom questions
-      (niño/a, teléfono, motivo), **redirect-on-booking → `https://pediatralavielle.com/cita-confirmada`**,
-      two-way Google Calendar sync, booking-created webhook → n8n, daily cap.
-- [ ] **Cal.com** second event type "Cita interna" (operator manual entry): same as
-      above but **no `/cita-confirmada` redirect** (don't fire ad conversion for
-      hand-entered patients).
-- [ ] **GTM:** Conversion Linker on all pages; conversion tag (`AW-18189103348` +
-      new label) firing on `booking_confirmed` / the `/cita-confirmada` path.
-- [ ] **Google Ads:** new conversion action "Booking confirmed - Lavielle" set
-      Primary; `whatsapp_click` set Secondary.
-- [ ] **n8n + WhatsApp Cloud API** (one dedicated automation number): booking-created
-      notifications to operators + day-before two-way confirm. (Roadmap, not v1 code.)
+Loads only after a successful Cal.com booking (Cal redirects here — dashboard config,
+not code). On load it pushes one `booking_confirmed` event, reads booking params
+(`startTime`/`endTime`/`attendeeName`/`uid`, ISO-8601 UTC), formats them in
+`America/Mexico_City` / `es-MX`, renders the real appointment, and builds
+add-to-calendar links (Google / Outlook / Apple `.ics`). Degrades gracefully if
+params are missing but still fires the conversion. Inert while `booking.mode` is
+`"whatsapp"`.
 
 ---
 
 ## Common troubleshooting
 
-- **Embed shows "not found" / blank box** → `calLink` is still the placeholder, or
-  the Cal.com event type/slug doesn't exist. Fix the slug in `index.astro`.
-- **Conversion not attributing in Ads** → GTM Conversion Linker missing, or the Ads
-  conversion action isn't wired to `booking_confirmed`. Code side only emits the
-  dataLayer event; the rest is GTM/Ads config.
-- **Confirmation page shows "Tu cita ha sido registrada" with no date** → Cal.com
-  isn't forwarding params (enable "Forward parameters" on the redirect, default on),
-  or the redirect URL is wrong.
-- **Wrong time shown** → times are formatted in `America/Mexico_City`; Cal sends UTC
-  in `startTime`. A wrong offset means the source `startTime` is wrong, not the page.
-- **Tailwind class not applying** → there is no config file; v4 scans source for
-  class strings. Make sure the class is a literal in the markup (not built by string
-  concatenation), then restart `npm run dev`.
-- **Script changes not taking effect** → confirm the script tag is `is:inline`;
-  non-inline `<script>` tags get bundled/hoisted by Astro and behave differently.
+- **A literal is wrong on the page** → it lives in `client.ts`, not in a component.
+  Fix it there. If you can't find a knob for it, the component is missing a prop.
+- **Tailwind class not applying** → no config file; v4 scans source for literal class
+  strings. Make sure the class is a literal (not built by string concatenation),
+  then restart `npm run dev`.
+- **Color looks off / hardcoded** → colors come from the `@theme` block via `bg-brand`,
+  `text-paper`, etc. Don't hardcode hex in a component.
+- **Image not optimizing / type error** → local images must be imported (returns
+  `ImageMetadata`) and passed to `<Image>`; per-client images are imported in
+  `client.ts` and referenced through the config.
+- **`whatsapp_click` not firing** → confirm the tag is on `WhatsAppCta` and the event
+  name is unchanged; `context` is only a param.
+- **Booking/Questions/Cal embed missing** → expected: `booking.mode` is `"whatsapp"`.
+  Flip to `"self-serve"` (and set a real `calLink`) to bring them back.
+- **`#vacunas` heading hidden on scroll** → the sticky Dock; the section uses
+  `scroll-margin-top` to clear it.
+- **Script not taking effect** → confirm it's `is:inline`; non-inline `<script>` gets
+  bundled/hoisted by Astro and behaves differently.
 
 ---
 
 ## Constraints (design + scope)
 
-- No redesign — reuse existing Tailwind tokens; the confirmation page must look like
-  the same site. Spanish throughout. Mobile-first, no layout shift.
-- Static only — no SSR, no backend, no DB, no new runtime deps beyond the Cal.com
-  embed. No patient PII stored in `localStorage`/`sessionStorage` (only the gclid
-  attribution key). No secrets committed. No scraping of any external site.
+- No redesign — reuse existing `@theme` tokens and component patterns. Spanish
+  throughout. Mobile-first, no layout shift.
+- Static only — no SSR, no backend, no DB, no new runtime deps. No patient PII stored
+  anywhere. No secrets committed. No scraping of any external site.
+- `client.ts` + `@theme` are the per-client delta. A clone that forces edits into
+  `src/components/` means a component needs a prop, not a fork.
+
+---
+
+## Status
+
+**Live (whatsapp mode):** hero (now with portrait + full legal name), credentials,
+services (incl. the vaccination line), `#vacunas` section, pricing, three locations,
+consultorio photo section, footer, sticky WhatsApp dock.
+
+**Built but dormant (self-serve mode):** Cal.com embed (`Booking`), `Questions`
+channel, `/cita-confirmada` conversion page, `booking_confirmed`. Needs a real
+`calLink` + the Cal.com/GTM/Ads/n8n config in `BOOKING_CLAUDE_CODE_PROMPT.md` before
+it can be switched on.
+
+**Open data:** vaccine price (services note is a `"Consultar"` placeholder);
+Grupo Médico Madrid Place ID + coordinates; exact accent/spelling of "Joaquín" on the
+cédula.
