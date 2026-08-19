@@ -13,6 +13,7 @@ import Services from "../components/Services.astro";
 import Vaccines from "../components/Vaccines.astro";
 import Pricing from "../components/Pricing.astro";
 import Locations from "../components/Locations.astro";
+import Consultorio from "../components/Consultorio.astro";
 import Questions from "../components/Questions.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import Dock from "../components/Dock.astro";
@@ -37,6 +38,8 @@ const selfServe = client.booking.mode === "self-serve";
 
   <Pricing />
   <Locations />
+
+  {client.consultorio && <Consultorio />}
 
   {selfServe && <Questions />}
 

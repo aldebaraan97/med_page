@@ -13,6 +13,7 @@
 // optimization and for the intrinsic width/height that prevents CLS.
 import type { ImageMetadata } from "astro";
 import heroPortrait from "../assets/lavielle-portrait.jpg";
+import consultorio1 from "../assets/consultorio-1.jpg";
 
 export interface Location {
   /** Public-facing name of the site. Must match the Google Business Profile. */
@@ -68,6 +69,14 @@ export interface VaccinesBlock {
   prefill: string;
 }
 
+/** The photo section at the bottom. Optional, same reasoning as vaccines. */
+export interface ConsultorioBlock {
+  heading: string;
+  blurb: string;
+  /** Renders as 1 column on mobile, up to 2 on desktop. 1 or 2 images both look intentional. */
+  images: { src: ImageMetadata; alt: string }[];
+}
+
 /**
  * How this client takes appointments.
  *
@@ -119,6 +128,7 @@ export interface ClientConfig {
     gtmId: string;
   };
   vaccines?: VaccinesBlock;
+  consultorio?: ConsultorioBlock;
 }
 
 export const client: ClientConfig = {
@@ -257,5 +267,14 @@ export const client: ClientConfig = {
     cta: "Preguntar por vacunas por WhatsApp",
     prefill:
       "Hola, quisiera información sobre la aplicación de vacunas (Triple Viral / Doble Viral) para mi hijo/a.",
+  },
+
+  consultorio: {
+    heading: "El consultorio",
+    blurb:
+      "Un espacio tranquilo y familiar en Cuautitlán Izcalli, donde el Dr. Lavielle atiende personalmente cada consulta.",
+    images: [
+      { src: consultorio1, alt: "Consultorio del Dr. Lavielle en Cuautitlán Izcalli" },
+    ],
   },
 };

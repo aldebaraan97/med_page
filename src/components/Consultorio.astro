@@ -1,0 +1,30 @@
+---
+// Photos of the room, at the bottom. Config-driven and optional.
+// The grid is deliberately capped at two columns and only splits when there
+// is a second photo — a lone image in a 2-col grid reads as a missing tile.
+import { Image } from "astro:assets";
+import { client } from "../config/client";
+import Section from "./Section.astro";
+
+const c = client.consultorio!;
+const multi = c.images.length > 1;
+---
+<Section id="consultorio" title={c.heading}>
+  <p class="max-w-[38rem] text-lede">{c.blurb}</p>
+
+  <ul class:list={["mt-4 grid gap-3", multi && "sm:grid-cols-2"]}>
+    {c.images.map((img) => (
+      <li class="grid">
+        {/* width only — Astro derives the height from the source, so a
+            swapped-in photo of any aspect still reserves its own box. */}
+        <Image
+          src={img.src}
+          alt={img.alt}
+          width={960}
+          loading="lazy"
+          class="h-full w-full rounded-md object-cover"
+        />
+      </li>
+    ))}
+  </ul>
+</Section>
