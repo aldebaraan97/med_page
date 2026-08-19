@@ -98,7 +98,9 @@ export const client: ClientConfig = {
   },
 
   practitioner: {
-    name: "Dr. Vicente Lavielle Sotomayor",
+    // Full legal name — flows into the H1 and the schema.org Physician node.
+    // copy.title stays short on purpose: it's the <title> tag.
+    name: "Dr. Vicente Joaquín Lavielle Sotomayor",
     specialty: "Pediatric",
     specialtyLabel: "Pediatra",
     licenses: [
