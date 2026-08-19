@@ -7,6 +7,13 @@
 // src/components/, that's the signal a component needs a prop.
 // ============================================================
 
+// Per-client images are imported here, not in the components, so the
+// components stay client-agnostic and the whole delta stays in this file.
+// The import returns ImageMetadata, which <Image> needs for build-time
+// optimization and for the intrinsic width/height that prevents CLS.
+import type { ImageMetadata } from "astro";
+import heroPortrait from "../assets/lavielle-portrait.jpg";
+
 export interface Location {
   /** Public-facing name of the site. Must match the Google Business Profile. */
   name: string;
@@ -32,6 +39,8 @@ export interface Practitioner {
   licenses: { label: string; value: string; mono?: boolean }[];
   /** Footnote under the credential card. */
   tenure: string;
+  /** Optional hero portrait. Omit and the hero renders text-only. */
+  photo?: { src: ImageMetadata; alt: string };
 }
 
 /**
@@ -109,6 +118,10 @@ export const client: ClientConfig = {
       { label: "Formación", value: "UNAM · Especialidad en Hospital del Niño DIF" },
     ],
     tenure: "25 años en Hospital San Rafael · 14 años en Hospital Materno Infantil",
+    photo: {
+      src: heroPortrait,
+      alt: "El Dr. Vicente Joaquín Lavielle Sotomayor, pediatra en Cuautitlán Izcalli",
+    },
   },
 
   contact: {

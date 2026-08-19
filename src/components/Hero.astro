@@ -1,29 +1,55 @@
 ---
+import { Image } from "astro:assets";
 import { client } from "../config/client";
 import WhatsAppCta from "./WhatsAppCta.astro";
 import WhatsAppIcon from "./WhatsAppIcon.astro";
 const { copy, hours } = client;
+// Optional: a client without a portrait gets the original text-only hero.
+const { photo } = client.practitioner;
 ---
 <header class="bg-brand pt-12 pb-10 text-paper">
-  <div class="mx-auto max-w-wrap px-5">
-    <p class="mb-3 text-fine uppercase tracking-[0.09em] text-brand-soft">
-      {copy.eyebrow}
-    </p>
+  <div
+    class="mx-auto flex max-w-wrap flex-col gap-7 px-5 sm:flex-row sm:items-center sm:gap-8"
+  >
+    {/* Order flips at the one breakpoint: portrait leads on mobile (the bottom
+        of this field is overlapped by the credential card, so nothing that
+        matters can sit there), and moves to the right of the text on desktop. */}
+    <div class="order-2 sm:order-1 sm:flex-1">
+      <p class="mb-3 text-fine uppercase tracking-[0.09em] text-brand-soft">
+        {copy.eyebrow}
+      </p>
 
-    <h1
-      class="mb-3 font-display text-[clamp(2rem,6vw,3rem)] font-semibold leading-[1.15] tracking-[-0.015em]"
-    >
-      {client.practitioner.name}
-    </h1>
+      <h1
+        class="mb-3 font-display text-[clamp(2rem,6vw,3rem)] font-semibold leading-[1.15] tracking-[-0.015em]"
+      >
+        {client.practitioner.name}
+      </h1>
 
-    <p class="mb-7 max-w-[34rem] text-lede text-brand-pale">{copy.lede}</p>
+      <p class="mb-7 max-w-[34rem] text-lede text-brand-pale">{copy.lede}</p>
 
-    <WhatsAppCta label={copy.ctaHero} context="hero">
-      <WhatsAppIcon slot="icon" />
-    </WhatsAppCta>
+      <WhatsAppCta label={copy.ctaHero} context="hero">
+        <WhatsAppIcon slot="icon" />
+      </WhatsAppCta>
 
-    <p class="mt-3.5 text-sm text-brand-soft">
-      {copy.ctaSub} · {hours.display}
-    </p>
+      <p class="mt-3.5 text-sm text-brand-soft">
+        {copy.ctaSub} · {hours.display}
+      </p>
+    </div>
+
+    {photo && (
+      <div class="order-1 w-36 shrink-0 sm:order-2 sm:w-[13.5rem]">
+        {/* width/height carry the intrinsic 3:4 ratio, so the box is reserved
+            before the bytes land. It's the LCP element — hence eager. */}
+        <Image
+          src={photo.src}
+          alt={photo.alt}
+          width={432}
+          height={576}
+          loading="eager"
+          fetchpriority="high"
+          class="h-auto w-full rounded-md object-cover"
+        />
+      </div>
+    )}
   </div>
 </header>
