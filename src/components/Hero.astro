@@ -38,16 +38,16 @@ const { photo } = client.practitioner;
 
     {photo && (
       <div class="order-1 w-36 shrink-0 sm:order-2 sm:w-[13.5rem]">
-        {/* width/height carry the intrinsic 3:4 ratio, so the box is reserved
-            before the bytes land. It's the LCP element — hence eager. */}
+        {/* width only — Astro derives the height from the source, so the box
+            is reserved before the bytes land and a re-cropped portrait is
+            never squeezed. It's the LCP element, hence eager. */}
         <Image
           src={photo.src}
           alt={photo.alt}
           width={432}
-          height={576}
           loading="eager"
           fetchpriority="high"
-          class="h-auto w-full rounded-md object-cover"
+          class="h-auto w-full rounded-md"
         />
       </div>
     )}
