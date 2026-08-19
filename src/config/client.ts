@@ -228,7 +228,7 @@ export const client: ClientConfig = {
   copy: {
     title: "Pediatra en Cuautitlán Izcalli | Dr. Vicente Lavielle",
     description:
-      "Pediatra en Cuautitlán Izcalli con más de 30 años de experiencia. Consulta $500. Dos consultorios. Agenda por WhatsApp.",
+      "Pediatra en Cuautitlán Izcalli con más de 30 años de experiencia. Consulta $600. Tres consultorios. Agenda por WhatsApp.",
     eyebrow: "Pediatra · Cuautitlán Izcalli",
     lede: "Más de 30 años cuidando la salud de los niños de Cuautitlán Izcalli y sus alrededores. Atención desde el nacimiento hasta la adolescencia.",
     ctaHero: "Enviar WhatsApp",
