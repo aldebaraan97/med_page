@@ -211,6 +211,8 @@ export const client: ClientConfig = {
     { name: "Orientación para padres", note: "$600" },
     { name: "Certificado médico", note: "$600" },
     { name: "Carta pediátrica para pasaporte", note: "$600" },
+    // "Consultar" is a placeholder — the vaccine price is still unconfirmed.
+    { name: "Aplicación de vacunas — Triple Viral (SRP) y Doble Viral (SR)", note: "Consultar" },
   ],
 
   prices: [
